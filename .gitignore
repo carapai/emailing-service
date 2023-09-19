@@ -5,3 +5,4 @@ src/locales
 build
 .DS_Store
 servers.json
+*.pdf

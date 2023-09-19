@@ -30,8 +30,11 @@ class Webpage {
 
     //     return pdf;
     // }
-
-    static async createDHIS2Dashboard(url, dashboard, username, password) {
+    static async generatePDF(url, dashboard, type, username, password) {
+        const additionalUrl =
+            type === "dhis2"
+                ? `dhis-web-dashboard/#/${dashboard}/printoipp`
+                : `api/apps/Visualisation-Studio/index.html#/dashboards/${dashboard}?action=view&category=uDWxMNyXZeo&periods=WyJMQVNUXzEyX01PTlRIUyJd&organisations=WyJJbXNwVFFQd0NxZCJd&groups=W10%3D&levels=WyIzIl0%3D&display=report`;
         const browser = await puppeteer.launch({
             headless: true,
             args: [
@@ -54,17 +57,17 @@ class Webpage {
         await page.click("#submit");
         await page.waitForNavigation();
         console.log("Getting the page");
-        await page.goto(`${url}/dhis-web-dashboard/#/${dashboard}/printoipp`, {
+        await page.goto(`${url}/${additionalUrl}`, {
             waitUntil: "networkidle0",
             timeout: 0,
         });
         await page.emulateMediaType("print");
         const pdf = await page.pdf({
+            // path: `${dashboard}.pdf`,
             printBackground: true,
             format: "a4",
         });
         await browser.close();
-
         return pdf;
     }
 }
@@ -75,6 +78,8 @@ class Email {
             host: "smtp-relay.gmail.com",
             port: 587,
             secure: false,
+            ignoreTLS: true,
+
             // secureConnection: true, // Used for Office 365
             // tls: { ciphers: "SSLv3" }, // Used for Office 365
             // auth: {
@@ -88,12 +93,12 @@ class Email {
             to: to,
             subject: subject,
             text: text,
-            // attachments: [
-            //     {
-            //         filename: filename,
-            //         content: fileContent,
-            //     },
-            // ],
+            attachments: [
+                {
+                    filename: filename,
+                    content: fileContent,
+                },
+            ],
         };
         console.log("sending email");
         transporter.sendMail(mailOptions, (error, info) => {
@@ -105,8 +110,6 @@ class Email {
         });
     }
 }
-
-// async function createVSDashboard() {
 //     const browser = await puppeteer.launch({
 //         headless: false,
 //         args: ["--start-maximized", "--no-sandbox", "--disable-setuid-sandbox"],
@@ -133,14 +136,14 @@ class Email {
 //             }
 //         );
 
-//         // for (const dashboard of server.dashboards) {
-//         //     console.log(`Working on dashboard ${dashboard.id}`);
-//         //     await page.goto(
-//         //         `${server.url}/api/apps/Visualisation-Studio/index.html#/dashboards/${dashboard.id}?action=view&category=uDWxMNyXZeo&periods=WyJMQVNUXzEyX01PTlRIUyJd&organisations=WyJJbXNwVFFQd0NxZCJd&groups=W10%3D&levels=WyIzIl0%3D&display=report`,
-//         //         {
-//         //             waitUntil: "networkidle0",
-//         //         }
-//         //     );
+// for (const dashboard of server.dashboards) {
+//     console.log(`Working on dashboard ${dashboard.id}`);
+//     await page.goto(
+//         `${server.url}/api/apps/Visualisation-Studio/index.html#/dashboards/${dashboard.id}?action=view&category=uDWxMNyXZeo&periods=WyJMQVNUXzEyX01PTlRIUyJd&organisations=WyJJbXNwVFFQd0NxZCJd&groups=W10%3D&levels=WyIzIl0%3D&display=report`,
+//         {
+//             waitUntil: "networkidle0",
+//         }
+//     );
 //         await page.emulateMediaType("print");
 //         await page.pdf({
 //             path: "result.pdf",
@@ -228,9 +231,10 @@ class Email {
 (async () => {
     for (const server of servers) {
         for (const dashboard of server.dashboards) {
-            const buffer = await Webpage.createDHIS2Dashboard(
+            const buffer = await Webpage.generatePDF(
                 server.url,
                 dashboard.id,
+                dashboard.type,
                 server.username,
                 server.password
             );
