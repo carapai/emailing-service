@@ -73,8 +73,8 @@ class Email {
     static sendEmail(to, subject, text, filename, fileContent) {
         const transporter = nodemailer.createTransport({
             host: "smtp-relay.gmail.com",
-            // port: 587,
-            secure: true,
+            port: 587,
+            secure: false,
             // secureConnection: true, // Used for Office 365
             // tls: { ciphers: "SSLv3" }, // Used for Office 365
             // auth: {
@@ -84,7 +84,7 @@ class Email {
         });
 
         const mailOptions = {
-            from: "analysis@hispuganda.org", // Update from email
+            from: "analysis@hispuganda.org",
             to: to,
             subject: subject,
             text: text,
