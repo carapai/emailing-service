@@ -78,7 +78,7 @@ class Email {
             host: "smtp-relay.gmail.com",
             port: 587,
             secure: false,
-            ignoreTLS: true,
+            ignoreTLS: false,
 
             // secureConnection: true, // Used for Office 365
             // tls: { ciphers: "SSLv3" }, // Used for Office 365
