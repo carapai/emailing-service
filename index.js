@@ -239,12 +239,7 @@ class Email {
                 server.password
             );
             Email.sendEmail(
-                [
-                    "socaya@hispuganda.org",
-                    "jkaruhanga@hispuganda.org",
-                    "colupot@hispuganda.org",
-                    "pbehumbiize@hispuganda.org",
-                ],
+                "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org",
                 "FYI",
                 "This is nice dashboard",
                 "dashboard.pdf",
