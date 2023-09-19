@@ -76,7 +76,7 @@ class Email {
     static sendEmail(to, subject, text, filename, fileContent) {
         const transporter = nodemailer.createTransport({
             host: "smtp-relay.gmail.com",
-            port: 25,
+            port: 587,
             secure: false,
             ignoreTLS: true,
 
