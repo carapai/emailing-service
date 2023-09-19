@@ -62,7 +62,7 @@ class Email {
             to: to,
             name: "DHIS2 Analytics Insights",
             subject: subject,
-            text: text,
+            // text: text,
             html,
             attachments: [
                 {
