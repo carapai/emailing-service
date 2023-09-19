@@ -79,18 +79,12 @@ class Email {
             port: 587,
             secure: false,
             ignoreTLS: false,
-
-            // secureConnection: true, // Used for Office 365
-            // tls: { ciphers: "SSLv3" }, // Used for Office 365
-            // auth: {
-            //     user: "user", // Update username
-            //     pass: "pass", // Update password
-            // },
         });
 
         const mailOptions = {
             from: "analysis@hispuganda.org",
             to: to,
+            name: "DHIS2 Analytics Insights",
             subject: subject,
             text: text,
             attachments: [
@@ -240,8 +234,8 @@ class Email {
             );
             Email.sendEmail(
                 "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org",
+                "Maternal & Child Health",
                 "FYI",
-                "This is nice dashboard",
                 "dashboard.pdf",
                 buffer
             );
