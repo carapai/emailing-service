@@ -87,14 +87,14 @@ class Email {
             to: to,
             subject: subject,
             text: text,
-            attachments: [
-                {
-                    filename: filename,
-                    content: fileContent,
-                },
-            ],
+            // attachments: [
+            //     {
+            //         filename: filename,
+            //         content: fileContent,
+            //     },
+            // ],
         };
-
+        console.log("sending email");
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 return console.log(error);
