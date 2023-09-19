@@ -1,11 +1,9 @@
 const puppeteer = require("puppeteer");
-const imgToPDF = require("./createPDF");
+const nodemailer = require("nodemailer");
+// const imgToPDF = require("./createPDF");
 const servers = require("./servers.json");
-const fs = require("fs");
-const { default: axios } = require("axios");
-
-async function createPDF() {}
-
+// const fs = require("fs");
+// const { default: axios } = require("axios");
 class Webpage {
     // static async generatePDF(url) {
     //     const browser = await puppeteer.launch({ headless: true }); // Puppeteer can only generate pdf in headless mode.
@@ -55,9 +53,10 @@ class Webpage {
         console.log("Logging in");
         await page.click("#submit");
         await page.waitForNavigation();
-
+        console.log("Getting the page");
         await page.goto(`${url}/dhis-web-dashboard/#/${dashboard}/printoipp`, {
             waitUntil: "networkidle0",
+            timeout: 0,
         });
         await page.emulateMediaType("print");
         const pdf = await page.pdf({

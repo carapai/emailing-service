@@ -12,6 +12,7 @@
     "image-to-pdf": "^2.0.0",
     "jsdom": "^22.1.0",
     "lodash": "^4.17.21",
+    "nodemailer": "^6.9.5",
     "pdfkit": "^0.13.0",
     "pdfmake": "^0.2.7",
     "plotly": "^1.0.6",
