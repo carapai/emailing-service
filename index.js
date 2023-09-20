@@ -1,6 +1,9 @@
 const puppeteer = require("puppeteer");
 const nodemailer = require("nodemailer");
+const fs = require("fs");
 const servers = require("./servers.json");
+
+const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 class Webpage {
     static async generatePDF(url, dashboard, type, username, password) {
         const additionalUrl =
@@ -13,9 +16,19 @@ class Webpage {
                 "--start-maximized",
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
+                "--disable-features=BlockInsecurePrivateNetworkRequests",
+                "--disable-features=IsolateOrigins",
+                "--disable-site-isolation-trials",
+                "--disable-web-security",
+                "--proxy-server='direct://'",
+                "--proxy-bypass-list=*",
             ],
         });
         const page = await browser.newPage();
+        await page.setUserAgent(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+        );
+
         await page.setViewport({
             width: 2048,
             height: 1280,
@@ -34,12 +47,31 @@ class Webpage {
             timeout: 0,
         });
         await page.emulateMediaType("print");
-        const html = await page.content();
         console.log("Generating pdf");
         const pdf = await page.pdf({
             printBackground: true,
             format: "a4",
         });
+
+        await page.addScriptTag({ path: "nodeSavePageWE_client.js" });
+        await page.evaluate(
+            async (params) => {
+                runSinglePage(params);
+            },
+            { lazyload: false }
+        );
+
+        let html = "";
+        while (true) {
+            html = await page.evaluate(async () => {
+                return htmlFINAL;
+            }, {});
+            if (html !== "NONE") {
+                break;
+            }
+            await snooze(100);
+        }
+        fs.writeFileSync("test.html", html);
         await browser.close();
         return { pdf, html };
     }
@@ -95,7 +127,7 @@ class Email {
                 "FYI",
                 "dashboard.pdf",
                 pdf,
-                ``
+                html
             );
         }
     }
