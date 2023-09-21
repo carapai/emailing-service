@@ -125,7 +125,7 @@ class Email {
             );
 
             Email.sendEmail(
-                "colupot@hispuganda.org,paul.mbaka@gmail.com",
+                "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
                 "Maternal & Child Health",
                 "FYI",
                 "dashboard.pdf",
