@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 const nodemailer = require("nodemailer");
-const fs = require("fs");
+
 const servers = require("./servers.json");
 
 const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -22,6 +22,7 @@ class Webpage {
                 "--disable-web-security",
                 "--proxy-server='direct://'",
                 "--proxy-bypass-list=*",
+                "--disable-features=site-per-process",
             ],
         });
         const page = await browser.newPage();
@@ -49,6 +50,7 @@ class Webpage {
         await page.emulateMediaType("print");
         console.log("Generating pdf");
         const pdf = await page.pdf({
+            // path: `${dashboard}.pdf`,
             printBackground: true,
             format: "a4",
         });
@@ -71,7 +73,7 @@ class Webpage {
             }
             await snooze(100);
         }
-        fs.writeFileSync("test.html", html);
+        await page.close();
         await browser.close();
         return { pdf, html };
     }
@@ -121,13 +123,14 @@ class Email {
                 server.username,
                 server.password
             );
+
             Email.sendEmail(
-                "colupot@hispuganda.org",
+                "colupot@hispuganda.org,paul.mbaka@gmail.com",
                 "Maternal & Child Health",
                 "FYI",
                 "dashboard.pdf",
                 pdf,
-                html
+                ""
             );
         }
     }
