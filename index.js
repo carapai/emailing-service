@@ -80,7 +80,7 @@ class Email {
         });
 
         const mailOptions = {
-            from: "analysis@hispuganda.org",
+            from: "Data Insights<analysis@hispuganda.org>",
             to: to,
             name: "DHIS2 Analytics Insights",
             subject: subject,
