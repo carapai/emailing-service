@@ -1,15 +1,23 @@
 const puppeteer = require("puppeteer");
 const nodemailer = require("nodemailer");
-
 const servers = require("./servers.json");
+const { scheduleJob } = require("node-schedule");
+const { default: axios } = require("axios");
 
 const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 class Webpage {
-    static async generatePDF(url, dashboard, type, username, password) {
+    static async generatePDF(
+        url,
+        dashboard,
+        type,
+        username,
+        password,
+        date = ""
+    ) {
         const additionalUrl =
             type === "dhis2"
                 ? `dhis-web-dashboard/#/${dashboard}/printoipp`
-                : `api/apps/Visualisation-Studio/index.html#/dashboards/${dashboard}?action=view&category=uDWxMNyXZeo&periods=WyJMQVNUXzEyX01PTlRIUyJd&organisations=WyJJbXNwVFFQd0NxZCJd&groups=W10%3D&levels=WyIzIl0%3D&display=report`;
+                : `api/apps/Manifesto-Dashboard/index.html#/reports/${dashboard}`;
         const browser = await puppeteer.launch({
             headless: true,
             args: [
@@ -50,37 +58,20 @@ class Webpage {
         await page.emulateMediaType("print");
         console.log("Generating pdf");
         const pdf = await page.pdf({
-            // path: `${dashboard}.pdf`,
+            path: `${dashboard}${date}.pdf`,
             printBackground: true,
             format: "a4",
+            landscape: true,
+            preferCSSPageSize: true,
         });
-
-        await page.addScriptTag({ path: "nodeSavePageWE_client.js" });
-        await page.evaluate(
-            async (params) => {
-                runSinglePage(params);
-            },
-            { lazyload: false }
-        );
-
-        let html = "";
-        while (true) {
-            html = await page.evaluate(async () => {
-                return htmlFINAL;
-            }, {});
-            if (html !== "NONE") {
-                break;
-            }
-            await snooze(100);
-        }
         await page.close();
         await browser.close();
-        return { pdf, html };
+        return pdf;
     }
 }
 
 class Email {
-    static sendEmail(to, subject, text, filename, fileContent, html = "") {
+    static sendEmail(to, subject, text, filename, fileContent) {
         const transporter = nodemailer.createTransport({
             host: "smtp-relay.gmail.com",
             port: 587,
@@ -116,22 +107,59 @@ class Email {
 (async () => {
     for (const server of servers) {
         for (const dashboard of server.dashboards) {
-            const { pdf, html } = await Webpage.generatePDF(
-                server.url,
-                dashboard.id,
-                dashboard.type,
-                server.username,
-                server.password
-            );
+            if (dashboard.type === "vs") {
+                const { data } = await axios.get(
+                    `${server.url}/api/dataStore/i-reports/${dashboard.id}`,
+                    {
+                        auth: {
+                            username: server.username,
+                            password: server.password,
+                        },
+                    }
+                );
+                const job = scheduleJob(
+                    dashboard.id,
+                    String(data.schedule).replace(
+                        "additionalDays",
+                        data.additionalDays
+                    ),
+                    async (date) => {
+                        console.log("This is working", date);
+                        const pdf = await Webpage.generatePDF(
+                            server.url,
+                            dashboard.id,
+                            dashboard.type,
+                            server.username,
+                            server.password,
+                            date.toISOString()
+                        );
 
-            Email.sendEmail(
-                "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
-                "Maternal & Child Health",
-                "FYI",
-                "dashboard.pdf",
-                pdf,
-                ""
-            );
+                        Email.sendEmail(
+                            data.emails,
+                            data.name || dashboard.subject,
+                            "FYI",
+                            "dashboard.pdf",
+                            pdf
+                        );
+                    }
+                );
+                console.log(job?.name + " Scheduled");
+            } else {
+                const pdf = await Webpage.generatePDF(
+                    server.url,
+                    dashboard.id,
+                    dashboard.type,
+                    server.username,
+                    server.password
+                );
+                Email.sendEmail(
+                    "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
+                    dashboard.subject,
+                    "FYI",
+                    "dashboard.pdf",
+                    pdf
+                );
+            }
         }
     }
 })();
