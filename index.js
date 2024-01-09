@@ -158,6 +158,23 @@ class Email {
                     "dashboard.pdf",
                     pdf
                 );
+
+                scheduleJob(dashboard.id, "0 8 * * *", async () => {
+                    const pdf = await Webpage.generatePDF(
+                        server.url,
+                        dashboard.id,
+                        dashboard.type,
+                        server.username,
+                        server.password
+                    );
+                    Email.sendEmail(
+                        "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
+                        dashboard.subject,
+                        "FYI",
+                        "dashboard.pdf",
+                        pdf
+                    );
+                });
             }
         }
     }
