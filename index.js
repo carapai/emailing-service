@@ -49,7 +49,10 @@ class Webpage {
         await page.type("#j_password", password);
         console.log("Logging in");
         await page.click("#submit");
-        await page.waitForNavigation();
+        await page.waitForNavigation({
+            waitUntil: "networkidle0",
+            timeout: 0,
+        });
         console.log("Getting the page");
         await page.goto(`${url}/${additionalUrl}`, {
             waitUntil: "networkidle0",
