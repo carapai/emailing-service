@@ -44,7 +44,7 @@ class Webpage {
             deviceScaleFactor: 1,
         });
 
-        await page.goto(url, { waitUntil: "networkidle0" });
+        await page.goto(url, { waitUntil: "networkidle0", timeout: 0 });
         await page.type("#j_username", username);
         await page.type("#j_password", password);
         console.log("Logging in");
