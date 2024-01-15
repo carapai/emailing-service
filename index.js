@@ -139,7 +139,7 @@ class Email {
                             data.emails,
                             data.name || dashboard.subject,
                             "FYI",
-                            "dashboard.pdf",
+                            `${dashboard.subject}.pdf`,
                             pdf
                         );
                     }
@@ -164,7 +164,7 @@ class Email {
                     "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
                     dashboard.subject,
                     "FYI",
-                    "dashboard.pdf",
+                    `${dashboard.subject}.pdf`,
                     modifiedPdfBytes
                 );
 
@@ -187,7 +187,7 @@ class Email {
                         "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
                         dashboard.subject,
                         "FYI",
-                        "dashboard.pdf",
+                        `${dashboard.subject}.pdf`,
                         modifiedPdfBytes
                     );
                 });
