@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer");
 const nodemailer = require("nodemailer");
+const { PDFDocument } = require("pdf-lib");
+const fs = require("fs");
 const servers = require("./servers.json");
 const { scheduleJob } = require("node-schedule");
 const { default: axios } = require("axios");
@@ -19,7 +21,7 @@ class Webpage {
                 ? `dhis-web-dashboard/#/${dashboard}/printoipp`
                 : `api/apps/Manifesto-Dashboard/index.html#/reports/${dashboard}`;
         const browser = await puppeteer.launch({
-            headless: true,
+            headless: false,
             args: [
                 "--start-maximized",
                 "--no-sandbox",
@@ -151,12 +153,19 @@ class Email {
                     server.username,
                     server.password
                 );
+
+                const pdfDoc = await PDFDocument.load(pdf);
+                const pages = pdfDoc.getPages();
+                pdfDoc.removePage(0);
+                pdfDoc.removePage(pages.length - 2);
+                const modifiedPdfBytes = await pdfDoc.save();
+
                 Email.sendEmail(
                     "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
                     dashboard.subject,
                     "FYI",
                     "dashboard.pdf",
-                    pdf
+                    modifiedPdfBytes
                 );
 
                 scheduleJob(dashboard.id, "0 8 * * *", async () => {
@@ -167,12 +176,19 @@ class Email {
                         server.username,
                         server.password
                     );
+
+                    const pdfDoc = await PDFDocument.load(pdf);
+                    const pages = pdfDoc.getPages();
+                    pdfDoc.removePage(0);
+                    pdfDoc.removePage(pages.length - 2);
+                    const modifiedPdfBytes = await pdfDoc.save();
+
                     Email.sendEmail(
                         "socaya@hispuganda.org,jkaruhanga@hispuganda.org,colupot@hispuganda.org,pbehumbiize@hispuganda.org,ssekiwere@hispuganda.org,paul.mbaka@gmail.com",
                         dashboard.subject,
                         "FYI",
                         "dashboard.pdf",
-                        pdf
+                        modifiedPdfBytes
                     );
                 });
             }
