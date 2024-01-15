@@ -21,7 +21,7 @@ class Webpage {
                 ? `dhis-web-dashboard/#/${dashboard}/printoipp`
                 : `api/apps/Manifesto-Dashboard/index.html#/reports/${dashboard}`;
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             args: [
                 "--start-maximized",
                 "--no-sandbox",
