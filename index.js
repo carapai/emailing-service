@@ -1,12 +1,10 @@
 const puppeteer = require("puppeteer");
 const nodemailer = require("nodemailer");
 const { PDFDocument } = require("pdf-lib");
-const fs = require("fs");
 const servers = require("./servers.json");
 const { scheduleJob } = require("node-schedule");
 const { default: axios } = require("axios");
 
-const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 class Webpage {
     static async generatePDF(
         url,
@@ -75,7 +73,7 @@ class Webpage {
 class Email {
     static sendEmail(to, subject, text, filename, fileContent) {
         const transporter = nodemailer.createTransport({
-            host: "smtp-relay.gmail.com",
+            host: "smtp.umcs.go.ug",
             port: 587,
             secure: false,
             ignoreTLS: false,
@@ -168,7 +166,7 @@ class Email {
                     modifiedPdfBytes
                 );
 
-                scheduleJob(dashboard.id, "0 8 * * *", async () => {
+                scheduleJob(dashboard.id, "0 8 * * MON", async () => {
                     const pdf = await Webpage.generatePDF(
                         server.url,
                         dashboard.id,
